@@ -8,6 +8,7 @@ import com.ssvep.dao.TestRecordsDao;
 import com.ssvep.dto.AnalysisReportDto;
 import com.ssvep.dto.TestRecordDto;
 import com.ssvep.dto.TreatmentRecommendationDto;
+import com.ssvep.dto.UserDto;
 import com.ssvep.model.TestRecords;
 import com.ssvep.service.*;
 
@@ -27,12 +28,14 @@ import java.util.zip.ZipOutputStream;
 
 public class ExportController extends HttpServlet {
     private final String Boundary = "----boundary" + UUID.randomUUID().toString();
+    private UserService userService;
     private TestRecordService testRecordsService;
     private RecommendationService recommendationService;
     private AnalysisReportService analysisReportService;
 
     @Override
     public void init() throws ServletException{
+        userService = new UserService();
         testRecordsService = new TestRecordService();
         recommendationService = new RecommendationService();
         analysisReportService = new AnalysisReportService();
@@ -57,73 +60,113 @@ public class ExportController extends HttpServlet {
             module.addSerializer(LocalDateTime.class,new LocalDateTimeSerializer(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             objectMapper.registerModule(module);
 
-            if ("csv".equalsIgnoreCase(format)) {
-                if ("user".equalsIgnoreCase(model)) {
-                    List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
-                    byte[] recordCsv = ExportService.DataToCsv(recordDtos, objectMapper);
+            if(isAdmin()){
+                if ("csv".equalsIgnoreCase(format)) {
+                    List<UserDto> userDtos = userService.getAllUsers();
+                    for (UserDto userDto : userDtos) {
+                        Long everyUserId = userDto.getUserId();
+                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
+                        byte[] recordCsv = ExportService.DataToCsv(recordDtos, objectMapper);
 
-                    List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
-                    for (TestRecordDto recordDto : recordDtos) {
-                        analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+                        List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
+                        for (TestRecordDto recordDto : recordDtos) {
+                            analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+                        }
+                        byte[] reportCsv = ExportService.DataToCsv(analysisReportDtos, objectMapper);
+
+                        List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
+                        byte[] recommendationCsv = ExportService.DataToCsv(recommendationDtos, objectMapper);
+
+                        sendZipResponse(response, recordCsv, reportCsv, recommendationCsv, "csv");
                     }
-                    byte[] reportCsv = ExportService.DataToCsv(analysisReportDtos, objectMapper);
+                }else if ("json".equalsIgnoreCase(format)) {
+                    List<UserDto> userDtos = userService.getAllUsers();
+                    for (UserDto userDto : userDtos) {
+                        Long everyUserId = userDto.getUserId();
+                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(everyUserId);
+                        byte[] recordJson = ExportService.DataToJson(recordDtos, objectMapper);
 
-                    List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
-                    byte[] recommendationCsv = ExportService.DataToCsv(recommendationDtos, objectMapper);
+                        List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
+                        for (TestRecordDto recordDto : recordDtos) {
+                            analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+                        }
+                        byte[] reportJson = ExportService.DataToJson(analysisReportDtos, objectMapper);
 
-                    sendZipResponse(response, recordCsv, reportCsv, recommendationCsv, "csv");
-                } else if ("record".equalsIgnoreCase(model)) {
-                    List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
-                    byte[] recordCsv = ExportService.DataToCsv(recordDtos, objectMapper);
-                    sendCsvResponse(response, "record.csv", recordCsv);
-                } else if ("report".equalsIgnoreCase(model)) {
-                    List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
+                        List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
+                        byte[] recommendationJson = ExportService.DataToJson(recommendationDtos, objectMapper);
 
-                    List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
-                    for (TestRecordDto recordDto : recordDtos) {
-                        analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+                        sendZipResponse(response, recordJson, reportJson, recommendationJson, "json");
                     }
-
-                    byte[] reportCsv = ExportService.DataToCsv(analysisReportDtos, objectMapper);
-
-                    sendCsvResponse(response, "report.csv", reportCsv);
-                } else if ("recommendation".equalsIgnoreCase(model)) {
-                    List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
-                    byte[] recommendationCsv = ExportService.DataToCsv(recommendationDtos, objectMapper);
-                    sendCsvResponse(response, "recommendation.csv", recommendationCsv);
                 }
-            } else if ("json".equalsIgnoreCase(format)) {
-                if ("user".equalsIgnoreCase(model)) {
-                    List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
-                    byte[] recordJson = ExportService.DataToJson(recordDtos, objectMapper);
+            } else {
+                if ("csv".equalsIgnoreCase(format)) {
+                    if ("user".equalsIgnoreCase(model)) {
+                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
+                        byte[] recordCsv = ExportService.DataToCsv(recordDtos, objectMapper);
 
-                    List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
-                    for (TestRecordDto recordDto : recordDtos) {
-                        analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+                        List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
+                        for (TestRecordDto recordDto : recordDtos) {
+                            analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+                        }
+                        byte[] reportCsv = ExportService.DataToCsv(analysisReportDtos, objectMapper);
+
+                        List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
+                        byte[] recommendationCsv = ExportService.DataToCsv(recommendationDtos, objectMapper);
+
+                        sendZipResponse(response, recordCsv, reportCsv, recommendationCsv, "csv");
+                    } else if ("record".equalsIgnoreCase(model)) {
+                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
+                        byte[] recordCsv = ExportService.DataToCsv(recordDtos, objectMapper);
+                        sendCsvResponse(response, "record.csv", recordCsv);
+                    } else if ("report".equalsIgnoreCase(model)) {
+                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
+
+                        List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
+                        for (TestRecordDto recordDto : recordDtos) {
+                            analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+                        }
+
+                        byte[] reportCsv = ExportService.DataToCsv(analysisReportDtos, objectMapper);
+
+                        sendCsvResponse(response, "report.csv", reportCsv);
+                    } else if ("recommendation".equalsIgnoreCase(model)) {
+                        List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
+                        byte[] recommendationCsv = ExportService.DataToCsv(recommendationDtos, objectMapper);
+                        sendCsvResponse(response, "recommendation.csv", recommendationCsv);
                     }
-                    byte[] reportJson = ExportService.DataToJson(analysisReportDtos, objectMapper);
+                } else if ("json".equalsIgnoreCase(format)) {
+                    if ("user".equalsIgnoreCase(model)) {
+                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
+                        byte[] recordJson = ExportService.DataToJson(recordDtos, objectMapper);
 
-                    List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
-                    byte[] recommendationJson = ExportService.DataToJson(recommendationDtos, objectMapper);
+                        List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
+                        for (TestRecordDto recordDto : recordDtos) {
+                            analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+                        }
+                        byte[] reportJson = ExportService.DataToJson(analysisReportDtos, objectMapper);
 
-                    sendZipResponse(response, recordJson, reportJson, recommendationJson, "json");
-                } else if ("record".equalsIgnoreCase(model)) {
-                    List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
-                    byte[] recordJson = ExportService.DataToJson(recordDtos, objectMapper);
-                    sendJsonResponse(response, "record.json", recordJson);
-                } else if ("report".equalsIgnoreCase(model)) {
-                    List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
-                    List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
-                    for (TestRecordDto recordDto : recordDtos) {
-                        analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+                        List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
+                        byte[] recommendationJson = ExportService.DataToJson(recommendationDtos, objectMapper);
+
+                        sendZipResponse(response, recordJson, reportJson, recommendationJson, "json");
+                    } else if ("record".equalsIgnoreCase(model)) {
+                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
+                        byte[] recordJson = ExportService.DataToJson(recordDtos, objectMapper);
+                        sendJsonResponse(response, "record.json", recordJson);
+                    } else if ("report".equalsIgnoreCase(model)) {
+                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
+                        List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
+                        for (TestRecordDto recordDto : recordDtos) {
+                            analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+                        }
+
+                        byte[] reportJson = ExportService.DataToJson(analysisReportDtos, objectMapper);
+                        sendJsonResponse(response, "report.json", reportJson);
+                    } else if ("recommendation".equalsIgnoreCase(model)) {
+                        List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
+                        byte[] recommendationJson = ExportService.DataToJson(recommendationDtos, objectMapper);
+                        sendJsonResponse(response, "recommendation.json", recommendationJson);
                     }
-
-                    byte[] reportJson = ExportService.DataToJson(analysisReportDtos, objectMapper);
-                    sendJsonResponse(response, "report.json", reportJson);
-                } else if ("recommendation".equalsIgnoreCase(model)) {
-                    List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
-                    byte[] recommendationJson = ExportService.DataToJson(recommendationDtos, objectMapper);
-                    sendJsonResponse(response, "recommendation.json", recommendationJson);
                 }
             }
         } catch (IOException e) {
