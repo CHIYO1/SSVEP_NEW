@@ -60,45 +60,45 @@ public class ExportController extends HttpServlet {
             module.addSerializer(LocalDateTime.class,new LocalDateTimeSerializer(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             objectMapper.registerModule(module);
 
-            if(isAdmin()){
-                if ("csv".equalsIgnoreCase(format)) {
-                    List<UserDto> userDtos = userService.getAllUsers();
-                    for (UserDto userDto : userDtos) {
-                        Long everyUserId = userDto.getUserId();
-                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
-                        byte[] recordCsv = ExportService.DataToCsv(recordDtos, objectMapper);
-
-                        List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
-                        for (TestRecordDto recordDto : recordDtos) {
-                            analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
-                        }
-                        byte[] reportCsv = ExportService.DataToCsv(analysisReportDtos, objectMapper);
-
-                        List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
-                        byte[] recommendationCsv = ExportService.DataToCsv(recommendationDtos, objectMapper);
-
-                        sendZipResponse(response, recordCsv, reportCsv, recommendationCsv, "csv");
-                    }
-                }else if ("json".equalsIgnoreCase(format)) {
-                    List<UserDto> userDtos = userService.getAllUsers();
-                    for (UserDto userDto : userDtos) {
-                        Long everyUserId = userDto.getUserId();
-                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(everyUserId);
-                        byte[] recordJson = ExportService.DataToJson(recordDtos, objectMapper);
-
-                        List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
-                        for (TestRecordDto recordDto : recordDtos) {
-                            analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
-                        }
-                        byte[] reportJson = ExportService.DataToJson(analysisReportDtos, objectMapper);
-
-                        List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
-                        byte[] recommendationJson = ExportService.DataToJson(recommendationDtos, objectMapper);
-
-                        sendZipResponse(response, recordJson, reportJson, recommendationJson, "json");
-                    }
-                }
-            } else {
+//            if(isAdmin()){
+//                if ("csv".equalsIgnoreCase(format)) {
+//                    List<UserDto> userDtos = userService.getAllUsers();
+//                    for (UserDto userDto : userDtos) {
+//                        Long everyUserId = userDto.getUserId();
+//                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
+//                        byte[] recordCsv = ExportService.DataToCsv(recordDtos, objectMapper);
+//
+//                        List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
+//                        for (TestRecordDto recordDto : recordDtos) {
+//                            analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+//                        }
+//                        byte[] reportCsv = ExportService.DataToCsv(analysisReportDtos, objectMapper);
+//
+//                        List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
+//                        byte[] recommendationCsv = ExportService.DataToCsv(recommendationDtos, objectMapper);
+//
+//                        sendZipResponse(response, recordCsv, reportCsv, recommendationCsv, "csv");
+//                    }
+//                }else if ("json".equalsIgnoreCase(format)) {
+//                    List<UserDto> userDtos = userService.getAllUsers();
+//                    for (UserDto userDto : userDtos) {
+//                        Long everyUserId = userDto.getUserId();
+//                        List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(everyUserId);
+//                        byte[] recordJson = ExportService.DataToJson(recordDtos, objectMapper);
+//
+//                        List<AnalysisReportDto> analysisReportDtos = new ArrayList<>();
+//                        for (TestRecordDto recordDto : recordDtos) {
+//                            analysisReportDtos.addAll(analysisReportService.getReportByTestRecord(recordDto.getRecordId()));
+//                        }
+//                        byte[] reportJson = ExportService.DataToJson(analysisReportDtos, objectMapper);
+//
+//                        List<TreatmentRecommendationDto> recommendationDtos = recommendationService.getrecommendationsByUser(userid);
+//                        byte[] recommendationJson = ExportService.DataToJson(recommendationDtos, objectMapper);
+//
+//                        sendZipResponse(response, recordJson, reportJson, recommendationJson, "json");
+//                    }
+//                }
+//            } else {
                 if ("csv".equalsIgnoreCase(format)) {
                     if ("user".equalsIgnoreCase(model)) {
                         List<TestRecordDto> recordDtos = testRecordsService.getRecordsByUser(userid);
@@ -168,7 +168,7 @@ public class ExportController extends HttpServlet {
                         sendJsonResponse(response, "recommendation.json", recommendationJson);
                     }
                 }
-            }
+//            }
         } catch (IOException e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
