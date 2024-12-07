@@ -7,9 +7,7 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   server: {
     https: {
-      key: fs.readFileSync('E:\\SSVEP_NEW\\SSVEP(后端)\
-
-      \src\\main\\resources\\ssvep_decrypted.key','utf8'),  // 私钥路径
+      key: fs.readFileSync('E:\\SSVEP_NEW\\SSVEP(后端)\\src\\main\\resources\\ssvep_decrypted.key','utf8'),  // 私钥路径
       cert: fs.readFileSync('E:\\SSVEP_NEW\\SSVEP(后端)\\src\\main\\resources\\ssvep.crt','utf8'),  // 证书路径
       passphrase: 'ssvep'
     },
