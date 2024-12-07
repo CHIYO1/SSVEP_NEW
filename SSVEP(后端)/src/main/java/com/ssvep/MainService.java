@@ -175,7 +175,7 @@ public class MainService {
         protocol.setSSLEnabled(true);
 
         // 配置 Keystore
-        protocol.setKeystoreFile("E:\\SSVEP_NEW\\SSVEP(后端)\\src\\main\\resources\\ssvep.jks"); // 替换为你的 keystore 路径
+        protocol.setKeystoreFile("D:\\大学相关\\专业\\java\\JAVA项目\\SSVEP\\SSVEP(后端)\\src\\main\\resources\\ssvep.jks"); // 替换为你的 keystore 路径
         protocol.setKeystorePass("111111"); // 替换为你的 keystore 密码
         protocol.setKeyAlias("eyes"); // 替换为你的证书别名
 

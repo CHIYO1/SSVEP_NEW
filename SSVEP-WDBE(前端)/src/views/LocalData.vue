@@ -91,7 +91,7 @@
         </div>
 
         <div class="table_area">
-            <el-table :data="tableData" height="450" style="width: 100%" stripe>
+            <!-- <el-table :data="tableData" height="450" style="width: 100%" stripe>
                 <el-table-column prop="id" label="序号" width="70" align="center"/>
                 <el-table-column prop="name" label="项目名称" width="120" align="center" />
                 <el-table-column prop="date" label="检测时间" width="320" align="center">
@@ -121,6 +121,37 @@
                         <el-button link type="info" size="small" @click="download">下载</el-button>
                     </template>
                 </el-table-column>
+            </el-table> -->
+
+            <el-table :data="tableData2" height="450" style="width: 100%" stripe>
+                <el-table-column prop="id" label="序号" width="120" align="center" />
+                <el-table-column prop="user" label="用户" width="120" align="center" />
+                <el-table-column prop="name" label="项目名称" width="220" align="center" />
+                <el-table-column prop="date" label="检测时间" align="center">
+                    <template #default="scope">
+                        <div style="display: flex; align-items: center; justify-content: center">
+                            <el-icon>
+                                <timer />
+                            </el-icon>
+                            <span style="margin-left: 10px">{{ scope.row.date }}</span>
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="count" label="通道数" width="220" align="center" />
+                <el-table-column prop="score" label="评估分数" width="120" align="center" />
+                <el-table-column fixed="right" label="操作" width="250" align="center">
+                    <template #default>
+                        <el-popconfirm title="你确认要删除这条数据吗?" confirm-button-text="是的" cancel-button-text="算了"
+                            :icon="InfoFilled" icon-color="#626AEF">
+                            <template #reference>
+                                <el-button link type="danger" size="small" @click="handleDelete(scope.rowIndex)">
+                                    删除
+                                </el-button>
+                            </template>
+                        </el-popconfirm>
+                        <el-button link type="primary" size="small" @click="download">下载</el-button>
+                    </template>
+                </el-table-column>
             </el-table>
 
             <div class="demo-pagination-block">
@@ -135,12 +166,15 @@
 <script setup>
 import { ref } from 'vue'
 import { reactive } from 'vue'
-import tableDataJson from '@/assets/data/localdata_table.json'
+// import tableDataJson from '@/assets/data/localdata_table.json'
+import tableDataJson2 from '@/assets/data/localdata_table2.json'
 const input = ref('')
 
 const dialogVisible = ref(false)
 const num = ref(0)
-const tableData = ref(tableDataJson)
+
+// const tableData = ref(tableDataJson)
+const tableData2 = ref(tableDataJson2)
 
 const download = () => {
     window.location.href = '../../数据文件.csv'
@@ -179,8 +213,12 @@ const rules = reactive({
     ],
 })
 
+// const handleDelete = (index) => {
+//   tableData.value.splice(index, 1);
+// }
+
 const handleDelete = (index) => {
-  tableData.value.splice(index, 1);
+  tableData2.value.splice(index, 1);
 }
 </script>
 

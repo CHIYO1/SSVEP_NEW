@@ -24,7 +24,7 @@ public class DatabaseConfig {
      */
     private void loadProperties() {
         // 使用 try-with-resources 语法自动关闭输入流
-        try (InputStream input = new FileInputStream("E:\\SSVEP_NEW\\SSVEP(后端)\\src\\main\\resources\\application.properties")) {
+        try (InputStream input = new FileInputStream("src\\main\\resources\\application.properties")) {
             properties.load(input); // 从输入流中加载属性
         } catch (IOException ex) {
             ex.printStackTrace(); // 打印异常信息

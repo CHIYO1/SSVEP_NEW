@@ -1,0 +1,25 @@
+﻿{
+  "detectionId": "DC-20231207-001",
+  "username": "CHIYO",
+  "detectionDate": "2024-12-07",
+  "detectionStatus": "Completed",
+  "detectionDetails": {
+    "parameters": {
+      "frequency": "10Hz",
+      "amplitude": "1.2V",
+      "duration": "15 minutes"
+    },
+    "results": {
+      "signalQuality": "Excellent",
+      "responseLatency": "350ms",
+      "accuracy": "96%",
+      "notes": "Subject responded consistently with expected patterns."
+    },
+    "recommendations": [
+      "Continue regular visual function exercises.",
+      "Schedule next test in 6 months."
+    ]
+  },
+  "examiner": "Dr. Alaxy",
+  "remarks": "The test was conducted successfully with no anomalies detected."
+}
